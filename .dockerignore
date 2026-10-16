@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+.opencode
+session-*.md
+.gitignore
+.dockerignore
+Dockerfile
+README.md

@@ -1,4 +1,5 @@
 import datetime as dt
+import os
 from collections import Counter, deque
 from typing import Any
 
@@ -132,7 +133,15 @@ with gr.Blocks(title="Agent Activity Dashboard") as ui:
 app = gr.mount_gradio_app(api, ui, path="/")
 
 
-if __name__ == "__main__":
+def main() -> None:
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host=os.environ.get("HOST", "0.0.0.0"),
+        port=int(os.environ.get("PORT", "8000")),
+    )
+
+
+if __name__ == "__main__":
+    main()
