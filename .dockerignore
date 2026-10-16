@@ -6,4 +6,3 @@ session-*.md
 .gitignore
 .dockerignore
 Dockerfile
-README.md

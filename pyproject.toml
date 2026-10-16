@@ -1,6 +1,8 @@
 [project]
 name = "agent-activity-dashboard"
 version = "0.1.0"
+description = "Live dashboard visualizing agent (Claude Code, Codex, OpenCode, Pi) tool activity over HTTP."
+readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.143.3",
@@ -18,3 +20,13 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = ["app.py"]
+
+[dependency-groups]
+dev = ["pytest", "httpx", "ruff"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -16,10 +16,10 @@ Python is managed with [uv](https://docs.astral.sh/uv/):
 
 ```sh
 uv sync                  # install pinned deps from uv.lock into .venv
-uv run agent-dashboard   # serve on HOST/PORT (default 0.0.0.0:8000)
+uv run agent-dashboard   # serve on HOST/PORT (default 127.0.0.1:8000)
 ```
 
-Then open <http://localhost:8000>.
+Then open <http://localhost:8000>. Set `HOST=0.0.0.0` to listen on all interfaces (the Docker image does this already).
 
 Or with Docker:
 
@@ -39,7 +39,18 @@ const URL = process.env.DASHBOARD_URL ?? "http://localhost:8000/event";
 
 It is auto-discovered by opencode (no config entry needed). TypeScript resolution is handled by `.opencode/tsconfig.json`.
 
+Set `DASHBOARD_URL=""` in the environment to disable streaming without removing the plugin.
+
 Other platforms: point their hooks (Claude Code `PreToolUse`/`PostToolUse`/`Stop`, Codex, Pi) at `POST http://localhost:8000/event` with a JSON body; unknown shapes are normalized via fallbacks (`hook_event_name`, `tool_name`, `tool_input`, `x-platform` header).
+
+## Tests & CI
+
+```sh
+uv run pytest             # unit tests (FastAPI TestClient)
+uv run ruff check .       # lint
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint + tests, and type-checks the opencode plugin with `tsc --noEmit`.
 
 ## Project layout
 
@@ -49,4 +60,3 @@ Other platforms: point their hooks (Claude Code `PreToolUse`/`PostToolUse`/`Stop
 | `pyproject.toml` / `uv.lock` | Python deps managed by uv; `[project.scripts]` provides `agent-dashboard` |
 | `Dockerfile` / `.dockerignore` | uv-based container build |
 | `.opencode/plugins/dashboard.ts` | opencode plugin streaming tool events |
-| `requirements.txt` | legacy file, superseded by uv (kept for reference) |

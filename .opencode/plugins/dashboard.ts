@@ -1,10 +1,13 @@
 import type { Plugin } from "@opencode-ai/plugin";
 
-const URL = process.env.DASHBOARD_URL ?? "http://localhost:8000/event";
+const ENDPOINT = process.env.DASHBOARD_URL ?? "http://localhost:8000/event";
+// Kill switch: set DASHBOARD_URL="" to disable streaming without uninstalling the plugin.
+const DISABLED = ENDPOINT === "";
 
 async function send(event: string, payload: Record<string, unknown>) {
+  if (DISABLED) return;
   try {
-    await fetch(URL, {
+    await fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ platform: "opencode", event, ...payload }),

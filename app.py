@@ -20,16 +20,12 @@ def _truncate(value: Any, n: int) -> str:
 
 def _normalize(body: dict[str, Any], headers: dict[str, str]) -> dict[str, Any]:
     """Map Claude Code / Codex / OpenCode / Pi payloads to one shape."""
-    platform = (
-        body.get("platform")
-        or headers.get("x-platform")
-        or "unknown"
-    )
+    platform = body.get("platform") or headers.get("x-platform") or "unknown"
     event_name = body.get("event") or body.get("hook_event_name") or "Unknown"
     tool = body.get("tool") or body.get("tool_name") or ""
     args = body.get("args") or body.get("tool_input") or body.get("prompt") or ""
     return {
-        "timestamp": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "timestamp": dt.datetime.now(dt.UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "platform": str(platform),
         "event": str(event_name),
         "tool": str(tool),
@@ -45,7 +41,8 @@ api = FastAPI(title="Agent Activity Dashboard")
 async def event(req: Request):
     try:
         body = await req.json()
-    except Exception:
+    except ValueError:
+        # Malformed/empty JSON hook payloads degrade to normalization fallbacks.
         body = {}
     record = _normalize(body, {k.lower(): v for k, v in req.headers.items()})
     events.appendleft(record)
@@ -138,7 +135,7 @@ def main() -> None:
 
     uvicorn.run(
         app,
-        host=os.environ.get("HOST", "0.0.0.0"),
+        host=os.environ.get("HOST", "127.0.0.1"),
         port=int(os.environ.get("PORT", "8000")),
     )
 

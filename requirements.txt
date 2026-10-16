@@ -1,4 +1,0 @@
-gradio>=4.41
-fastapi
-uvicorn[standard]
-pandas
