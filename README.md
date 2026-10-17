@@ -30,14 +30,14 @@ docker run --rm -p 8000:8000 agent-dashboard
 
 ## Wiring up opencode
 
-This repo ships an opencode plugin at `.opencode/plugins/dashboard.ts` that streams every tool execution and session event to the dashboard:
+This repo ships an opencode plugin at `.opencode/plugins/dashboard.ts` that streams every tool execution and session event to the dashboard. It is written against the **OpenCode V2 plugin API** (requires opencode v2.0.x): a default export built with `Plugin.define` from `@opencode/plugin`, with tool hooks registered via `ctx.tool.hook("execute.before" / "execute.after")` (`PreToolUse` / `PostToolUse`) and server events streamed through `ctx.event.subscribe()` (`SessionStart` / `Stop`).
 
 ```ts
 // .opencode/plugins/dashboard.ts
 const URL = process.env.DASHBOARD_URL ?? "http://localhost:8000/event";
 ```
 
-It is auto-discovered by opencode (no config entry needed). TypeScript resolution is handled by `.opencode/tsconfig.json`.
+It is auto-discovered from `.opencode/plugins/` by opencode (no config entry needed; V2 also supports declaring plugins under a `plugins` config key if you ever need one). The plugin dependency is pinned in `.opencode/package.json` to `@opencode/plugin@2.0.32`, matching the targeted opencode release, and TypeScript resolution is handled by `.opencode/tsconfig.json`.
 
 Set `DASHBOARD_URL=""` in the environment to disable streaming without removing the plugin.
 
@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint + tests, and type-checks t
 | `app.py` | FastAPI receiver + mounted Gradio UI (single process) |
 | `pyproject.toml` / `uv.lock` | Python deps managed by uv; `[project.scripts]` provides `agent-dashboard` |
 | `Dockerfile` / `.dockerignore` | uv-based container build |
-| `.opencode/plugins/dashboard.ts` | opencode plugin streaming tool events |
+| `.opencode/plugins/dashboard.ts` | opencode V2 plugin streaming tool events |
