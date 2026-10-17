@@ -104,7 +104,7 @@ with gr.Blocks(title="Agent Activity Dashboard") as ui:
     gr.Markdown("# Agent Activity Dashboard")
     gr.Markdown(
         "Point your Claude Code, Codex, OpenCode, or Pi hooks/extensions at "
-        "`POST http://localhost:8000/event` to see live activity here."
+        "`POST http://localhost:8100/event` to see live activity here."
     )
 
     header = gr.Markdown(value=summary_md())
@@ -144,7 +144,7 @@ def main() -> None:
     uvicorn.run(
         app,
         host=os.environ.get("HOST", "127.0.0.1"),
-        port=int(os.environ.get("PORT", "8000")),
+        port=int(os.environ.get("PORT", "8100")),
     )
 
 

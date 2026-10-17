@@ -1,7 +1,7 @@
 import { Plugin } from "@opencode/plugin";
 import type { Result } from "@opencode/plugin/promise/tool";
 
-const ENDPOINT = process.env.DASHBOARD_URL ?? "http://localhost:8000/event";
+const ENDPOINT = process.env.DASHBOARD_URL ?? "http://localhost:8100/event";
 // Kill switch: set DASHBOARD_URL="" to disable streaming without uninstalling the plugin.
 const DISABLED = ENDPOINT === "";
 

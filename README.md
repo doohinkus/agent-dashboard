@@ -6,8 +6,8 @@ A live dashboard that visualizes agent (Claude Code, Codex, OpenCode, Pi) tool a
 
 ## How it works
 
-- `POST http://localhost:8000/event` — receivers for all platforms; payloads are normalized to a shared shape (`platform`, `event`, `tool`, `args`) and kept in an in-memory ring buffer (500 events max)
-- `GET http://localhost:8000/health` — liveness + current event count
+- `POST http://localhost:8100/event` — receivers for all platforms; payloads are normalized to a shared shape (`platform`, `event`, `tool`, `args`) and kept in an in-memory ring buffer (500 events max)
+- `GET http://localhost:8100/health` — liveness + current event count
 - `/` (browser) — live Gradio UI with event table, tool usage bar chart, and summary; refreshes once per second via `gr.Timer`
 
 ## Run it
@@ -16,16 +16,16 @@ Python is managed with [uv](https://docs.astral.sh/uv/):
 
 ```sh
 uv sync                  # install pinned deps from uv.lock into .venv
-uv run agent-dashboard   # serve on HOST/PORT (default 127.0.0.1:8000)
+uv run agent-dashboard   # serve on HOST/PORT (default 127.0.0.1:8100)
 ```
 
-Then open <http://localhost:8000>. Set `HOST=0.0.0.0` to listen on all interfaces (the Docker image does this already).
+Then open <http://localhost:8100>. Set `HOST=0.0.0.0` to listen on all interfaces (the Docker image does this already).
 
 Or with Docker:
 
 ```sh
 docker build -t agent-dashboard .
-docker run --rm -p 8000:8000 agent-dashboard
+docker run --rm -p 8100:8100 agent-dashboard
 ```
 
 ## Wiring up opencode
@@ -34,14 +34,14 @@ This repo ships an opencode plugin at `.opencode/plugins/dashboard.ts` that stre
 
 ```ts
 // .opencode/plugins/dashboard.ts
-const URL = process.env.DASHBOARD_URL ?? "http://localhost:8000/event";
+const URL = process.env.DASHBOARD_URL ?? "http://localhost:8100/event";
 ```
 
 It is auto-discovered from `.opencode/plugins/` by opencode (no config entry needed; V2 also supports declaring plugins under a `plugins` config key if you ever need one). The plugin dependency is pinned in `.opencode/package.json` to `@opencode/plugin@2.0.32`, matching the targeted opencode release, and TypeScript resolution is handled by `.opencode/tsconfig.json`.
 
 Set `DASHBOARD_URL=""` in the environment to disable streaming without removing the plugin.
 
-Other platforms: point their hooks (Claude Code `PreToolUse`/`PostToolUse`/`Stop`, Codex, Pi) at `POST http://localhost:8000/event` with a JSON body; unknown shapes are normalized via fallbacks (`hook_event_name`, `tool_name`, `tool_input`, `x-platform` header).
+Other platforms: point their hooks (Claude Code `PreToolUse`/`PostToolUse`/`Stop`, Codex, Pi) at `POST http://localhost:8100/event` with a JSON body; unknown shapes are normalized via fallbacks (`hook_event_name`, `tool_name`, `tool_input`, `x-platform` header).
 
 ## Tests & CI
 
