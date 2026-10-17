@@ -51,6 +51,40 @@ def test_truncate():
     assert dashboard._truncate("abcdef", 5) == "abcd…"
 
 
+def test_tool_label_truncates_long_names():
+    assert dashboard.tool_label("read") == "read"
+    assert dashboard.tool_label("playwright") == "play*"
+
+
+def test_tool_counts_df_uses_truncated_labels():
+    clear_buffer()
+    dashboard.events.extend(
+        [
+            {
+                "tool": "playwright",
+                "platform": "opencode",
+                "event": "PreToolUse",
+                "args": "",
+                "timestamp": "",
+            },
+            {
+                "tool": "read",
+                "platform": "opencode",
+                "event": "PreToolUse",
+                "args": "",
+                "timestamp": "",
+            },
+        ]
+    )
+    df = dashboard.tool_counts_df()
+    playwright_row = df[df["tool"] == "playwright"].iloc[0]
+    read_row = df[df["tool"] == "read"].iloc[0]
+    assert playwright_row["tool_label"] == "play*"
+    assert read_row["tool_label"] == "read"
+    full_names = set(df["tool"])
+    assert "playwright" in full_names  # full name kept for tooltip
+
+
 def test_post_event_returns_empty_body():
     clear_buffer()
     resp = client.post("/event", json={"platform": "pi", "event": "Stop"})

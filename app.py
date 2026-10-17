@@ -65,10 +65,18 @@ def events_df() -> pd.DataFrame:
     return pd.DataFrame(list(events), columns=COLUMNS)
 
 
+def tool_label(tool: str) -> str:
+    # Axis labels get truncated: long names collapse to the first 4 chars + "*".
+    return f"{tool[:4]}*" if len(tool) > 4 else tool
+
+
 def tool_counts_df() -> pd.DataFrame:
     counter = Counter(e["tool"] for e in events if e["tool"])
-    rows = [{"tool": tool, "count": n} for tool, n in counter.most_common(15)]
-    return pd.DataFrame(rows, columns=["tool", "count"])
+    rows = [
+        {"tool": tool, "tool_label": tool_label(tool), "count": n}
+        for tool, n in counter.most_common(15)
+    ]
+    return pd.DataFrame(rows, columns=["tool", "tool_label", "count"])
 
 
 def summary_md() -> str:
@@ -106,7 +114,7 @@ with gr.Blocks(title="Agent Activity Dashboard") as ui:
 
     chart = gr.BarPlot(
         value=tool_counts_df(),
-        x="tool",
+        x="tool_label",
         y="count",
         title="Tool usage",
         tooltip=["tool", "count"],
